@@ -101,6 +101,33 @@ app.get('/orders', (req, res) => {
     res.json(orders);
 });
 
+// POST /orders
+app.post('/orders', (req, res) => {
+    const { name, phone, lessonIDs } = req.body;
+    const newOrder = {
+        id: orders.length + 1,
+        name,
+        phone,
+        lessonIDs
+    };
+    orders.push(newOrder);
+    res.status(201).json(newOrder);
+});
+
+// PUT /lessons/:id
+app.put('/lessons/:id', (req, res) => {
+    const lessonId = parseInt(req.params.id);
+    const { spaces } = req.body;
+    const lesson = lessons.find(l => l.id === lessonId);
+
+    if (lesson) {
+        lesson.spaces = spaces;
+        res.json(lesson);
+    } else {
+        res.status(404).json({ error: 'Lesson not found' });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
 });

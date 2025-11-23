@@ -44,7 +44,7 @@ app.use('/lesson-images', (req, res, next) => {
 
 // MongoDB Connection
 let db;
-const uri = "mongodb+srv://sebastiandanci2003_db_user:xgh9kdzAmb7331DS@cluster0.pscxw9l.mongodb.net/?appName=Cluster0"// process.env.MONGO_URI;
+const uri = process.env.MONGO_URI;
 
 // Connect to MongoDB
 async function connectToDB() {
@@ -126,8 +126,8 @@ app.post('/orders', async (req, res) => {
         if (!name || !/^[a-zA-Z\s]+$/.test(name)) {
             return res.status(400).json({ error: 'Name is required and must contain letters only.' });
         }
-        if (!phone || !/^\d+$/.test(phone)) {
-            return res.status(400).json({ error: 'Phone is required and must contain numbers only.' });
+        if (!phone || !/^\d{10,}$/.test(phone)) {
+            return res.status(400).json({ error: 'Phone is required and must be at least 10 digits.' });
         }
         if (!Array.isArray(items) || items.length === 0) {
             return res.status(400).json({ error: 'At least one lesson must be included in the order.' });

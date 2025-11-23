@@ -44,7 +44,7 @@ app.use('/lesson-images', (req, res, next) => {
 
 // MongoDB Connection
 let db;
-const uri =  process.env.MONGO_URI;
+const uri = "mongodb+srv://sebastiandanci2003_db_user:xgh9kdzAmb7331DS@cluster0.pscxw9l.mongodb.net/?appName=Cluster0"// process.env.MONGO_URI;
 
 // Connect to MongoDB
 async function connectToDB() {
@@ -166,17 +166,17 @@ app.put('/lessons/:id', async (req, res) => {
         const updates = req.body;
         const collection = db.collection('lessons');
 
-        const { value } = await collection.findOneAndUpdate(
+        const updatedLesson = await collection.findOneAndUpdate(
             { _id: new ObjectId(id) },
             { $set: updates },
             { returnDocument: 'after' }
         );
 
-        if (!value) {
+        if (!updatedLesson) {
             return res.status(404).json({ error: 'Lesson not found' });
         }
 
-        res.json(value);
+        res.json(updatedLesson);
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Error updating lesson' });

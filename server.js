@@ -38,19 +38,19 @@ app.use('/lesson-images', (req, res, next) => {
 
     fs.access(imagePath, fs.constants.F_OK, (err) => {
         if (err) {
-            return res.sendFile(path.join(imageDirectory, 'ImageNotFound.jpg'));
+            return res.sendFile(path.join(imageDirectory, 'ImageNotFound.png'));
         }
         res.sendFile(imagePath);
     });
 });
 
 function getLessonImage(image, baseUrl) {
-    if (!image) return `${baseUrl}/lesson-images/ImageNotFound.jpg`;
+    if (!image) return `${baseUrl}/lesson-images/ImageNotFound.png`;
     if (image.startsWith('http') || image.startsWith('data:')) return image;
     
     const imagePath = path.join(imageDirectory, image);
     if (!fs.existsSync(imagePath)) {
-        return `${baseUrl}/lesson-images/ImageNotFound.jpg`;
+        return `${baseUrl}/lesson-images/ImageNotFound.png`;
     }
     return `${baseUrl}/lesson-images/${image}`;
 }

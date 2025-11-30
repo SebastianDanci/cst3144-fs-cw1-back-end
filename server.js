@@ -7,6 +7,8 @@ const { MongoClient, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -36,11 +38,22 @@ app.use('/lesson-images', (req, res, next) => {
 
     fs.access(imagePath, fs.constants.F_OK, (err) => {
         if (err) {
-            return res.status(404).json({ error: 'Lesson image not found' });
+            return res.sendFile(path.join(imageDirectory, 'ImageNotFound.jpg'));
         }
         res.sendFile(imagePath);
     });
 });
+
+function getLessonImage(image, baseUrl) {
+    if (!image) return `${baseUrl}/lesson-images/ImageNotFound.jpg`;
+    if (image.startsWith('http') || image.startsWith('data:')) return image;
+    
+    const imagePath = path.join(imageDirectory, image);
+    if (!fs.existsSync(imagePath)) {
+        return `${baseUrl}/lesson-images/ImageNotFound.jpg`;
+    }
+    return `${baseUrl}/lesson-images/${image}`;
+}
 
 // MongoDB Connection
 let db;
@@ -72,6 +85,13 @@ app.get('/lessons', async (req, res) => {
     try {
         const collection = db.collection('lessons');
         const results = await collection.find({}).toArray();
+        
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+
+        results.forEach(lesson => {
+            lesson.image = getLessonImage(lesson.image, baseUrl);
+        });
+
         res.json(results);
     } catch (err) {
         res.status(500).json({ error: 'Error fetching lessons' });
@@ -84,8 +104,13 @@ app.get('/search', async (req, res) => {
         const query = (req.query.q || '').trim().toLowerCase();
         const collection = db.collection('lessons');
         const lessons = await collection.find({}).toArray();
+        
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
 
         if (!query) {
+            lessons.forEach(lesson => {
+                lesson.image = getLessonImage(lesson.image, baseUrl);
+            });
             return res.json(lessons);
         }
 
@@ -98,6 +123,10 @@ app.get('/search', async (req, res) => {
             ].join(' ').toLowerCase();
 
             return searchable.includes(query);
+        });
+
+        results.forEach(lesson => {
+            lesson.image = getLessonImage(lesson.image, baseUrl);
         });
 
         res.json(results);

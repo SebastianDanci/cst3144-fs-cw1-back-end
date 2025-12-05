@@ -10,7 +10,15 @@ const port = process.env.PORT || 3000;
 app.set('trust proxy', 1);
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://127.0.0.1:5500/',
+    'http://localhost:5500/',
+    'https://sebastiandanci.github.io/'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 app.use(express.json());
 
 // Logger middleware
